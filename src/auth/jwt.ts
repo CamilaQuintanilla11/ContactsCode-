@@ -1,3 +1,16 @@
+/**
+ * 
+ * JWT implementa la firma y verificación de tokens JWT para la autenticación de usuarios en la API.
+ * El formato de los tokens es el estándar JWT, con cabecera, cuerpo y firma.
+ * La firma se realiza con HMAC-SHA256 y una clave secreta definida en el código.
+ * 
+ * La función 'sign' genera un token JWT a partir de un payload y un tiempo de vida (TTL) en segundos.
+ * La función 'verify' verifica la validez de un token JWT y regresa el payload si es válido.
+ * 
+ * Quien no tenga la llave no puede firmar
+ */
+
+
 import { createHmac } from "node:crypto";
 
 const SECRET = 'agenda-secret-2026';
