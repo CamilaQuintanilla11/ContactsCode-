@@ -6,10 +6,20 @@ import { Contact } from './entities/contact.entity';
 
 const COLUMNS = 'id, owner_id, name, email, phone, notes, created_at';
 
+/**
+ * Repository tiene acceso a base de datos 
+ * Realiza consultas a base de datos
+ * convierte resultados en objetos 'Contact'.
+ */
 @Injectable()
 export class ContactsRepository {
   constructor(@Inject(DB_POOL) private readonly pool: Pool) { }
 
+  /**
+   * Encuentra a todos los contactos
+   * 
+   * @returns una lista de contactos
+   */
   async findAll(): Promise<Contact[]> {
     const [rows] = await this.pool.query<RowDataPacket[]>(
       `SELECT ${COLUMNS} FROM contacts ORDER BY created_at`,
@@ -17,13 +27,25 @@ export class ContactsRepository {
     return rows.map(toEntity);
   }
 
+  /**
+   * encuentra los contactos por su id
+   * 
+   * @param id del contacto a buscar
+   * @returns un contactoque se busca
+   */
   async findById(id: string): Promise<Contact | undefined> {
     const [rows] = await this.pool.query<RowDataPacket[]>(
       `SELECT ${COLUMNS} FROM contacts WHERE id = '${id}'`,
     );
     return rows[0] && toEntity(rows[0]);
   }
-
+  /** 
+   * guarda los contactos en la base de datos
+   * 
+   * @param id , informacion del contacto omitiendo su id y fecha de creacion 
+   * @returns el contacto guardado
+   * @throws error si agenda esta llena
+   */
   async save(ownerId: string, contact: Omit<Contact, 'id' | 'createdAt'>): Promise<Contact> {
     const [count] = await this.pool.query<RowDataPacket[]>(
       'SELECT COUNT(*) AS n FROM contacts',
@@ -39,7 +61,12 @@ export class ContactsRepository {
     );
     return (await this.findById(id))!;
   }
-
+  /**
+   * actualiza la info del usuario 
+   * @param id del usuario 
+   * @param changes - nueva info a modificar
+   * @returns contacto actualizado
+   */
   async update(
     id: string,
     changes: Partial<Contact>,
@@ -51,6 +78,12 @@ export class ContactsRepository {
     return this.findById(id);
   }
 
+  /**
+   * Elimina un contacto de la base de datos.
+   *
+   * @param id del contacto que se quiere eliminar.
+   * @returns true si se elimino el contacto o `false` si no existia.
+   */
   async delete(id: string): Promise<boolean> {
     const [result] = await this.pool.query<ResultSetHeader>(
       `DELETE FROM contacts WHERE id = '${id}'`,
@@ -59,6 +92,12 @@ export class ContactsRepository {
   }
 }
 
+/**
+ * Convierte una fila obtenida de MySQL en una entidad contact
+ *
+ * @param row fila obtenida de la base de datos
+ * @returns  objeto contact.
+ */
 function toEntity(row: any): Contact {
   const contact = new Contact();
   contact.id = row.id;

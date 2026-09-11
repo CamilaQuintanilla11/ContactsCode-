@@ -31,9 +31,9 @@ export class ContactsController {
   }
 
   @Get()
-  findAll(@CurrentUser() user: JWTPayload): Promise<ContactResponseDto[]> {
-  console.log(user.email);
-  return this.service.findAll();
+  findAll(@CurrentUser() user: JwtPayload): Promise<ContactResponseDto[]> {
+    console.log(user.email);
+    return this.service.findAll(user.sub);
   }
 
   @Get(':id')
