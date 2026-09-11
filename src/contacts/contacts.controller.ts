@@ -45,14 +45,17 @@ export class ContactsController {
     type: ContactResponseDto,
   })
   @ApiResponse({ status: 400, description: 'Datos inválidos' })
-  create(@Body() dto: CreateContactDto): Promise<ContactResponseDto> {
+  create(
+    @CurrentUser() user: JwtPayload,
+    @Body() dto: CreateContactDto,
+  ): Promise<ContactResponseDto> {
     return this.service.create(user.sub, dto);
   }
  
 @Get()
   @ApiOperation({ summary: 'Listar contactos' })
   @ApiResponse({ status: 200, type: [ContactResponseDto] })
-  findAll(): Promise<ContactResponseDto[]> {
+  findAll(@CurrentUser() user: JwtPayload): Promise<ContactResponseDto[]> {
     return this.service.findAll(user.sub);
   }
 
